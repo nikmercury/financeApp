@@ -1,12 +1,27 @@
 import { StatusBar } from 'expo-status-bar';
+import {Ract} from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+
+import { createDrawerNavigator } from '@react-navigation/drawer';
+import { NavigationContainer } from '@react-navigation/native';
+
+import { Costs } from './Funds/costs';
+import Earnings from './Funds/earnings';
+import Login from './Funds/login';
+import Settings from './Funds/settings';
+
+const Drawer = createDrawerNavigator();
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+    <Drawer.Navigator initialRouteName="Home">
+      <Drawer.Screen name="Costs" component={Costs} />
+      <Drawer.Screen name="Earnings" component={Earnings} />
+      <Drawer.Screen name="Login" component={Login} />
+      <Drawer.Screen name="Settings" component={Settings} />
+    </Drawer.Navigator>
+  </NavigationContainer>
   );
 }
 
