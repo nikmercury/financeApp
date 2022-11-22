@@ -1,34 +1,50 @@
 import React, { useEffect, useState } from "react";
-import { Text, View, SafeAreaView, FlatList } from "react-native"
+import { Text, View, SafeAreaView, FlatList, StyleSheet } from "react-native"
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 export const Costs = props => {
     const [costArray, setCostArray] = useState([])
-    const [isLoading, setisLoading] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
+    const [token, setToken] = useState('')
 
 
     const renderItem = ({item}) => (
-        <Text>{item.id} - {item.title}</Text>
+        <View style={styles.costLineWrapper}>
+            <Text style={styles.costId}>{item.id}</Text>
+            <Text style={styles.costTitle}>{item.title}</Text>
+            <Text style={styles.costBody}>{item.body}</Text>
+        </View>
     )
 
+    useEffect(() => {
+        AsyncStorage.getItem('token').then((value) => {
+            if (value) {
+                setToken(value)
+            }
+        })
+    },[])
     
     useEffect(() => {
         getPost()
-    },[])
+    },[token])
 
 
     const getPost = () => {
-        setisLoading(true)
+        setIsLoading(true)
         let URL = 'https://jsonplaceholder.typicode.com/posts'
-        fetch(URL).then(res => res.json()).then(res => {
+        fetch(URL, {
+            headers: {
+                'Token': token
+            }
+        }).then(res => res.json()).then(res => {
             setCostArray(res)
-        }).finally(() => setisLoading(false))
+        }).finally(() => setIsLoading(false))
     }
 
 
     return (
-        <SafeAreaView>
+        <View style={styles.container}>
             <FlatList
                 data={costArray}
                 renderItem={renderItem}
@@ -36,6 +52,35 @@ export const Costs = props => {
                 onRefresh={getPost}
                 refreshing={isLoading}
             />
-        </SafeAreaView>
+        </View>
     )
 }
+
+const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+    },
+    costLineWrapper: {
+        height: 50,
+        flex: 1,
+        flexDirection: 'row',
+
+    },
+    costId: {
+        height: 50,
+        lineHeight: 50,
+        flex: 2,
+        paddingLeft: 20,
+    },
+    costTitle: {
+        height: 50,
+        lineHeight: 50,
+        flex: 2,
+    },
+    costBody: {
+        height: 50,
+        lineHeight: 50,
+        flex: 10,
+        paddingRight: 20,
+    },
+  });

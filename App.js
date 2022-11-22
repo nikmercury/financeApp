@@ -1,6 +1,10 @@
 import { StatusBar } from 'expo-status-bar';
-import {Ract} from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, {useState, useEffect, useMemo} from 'react';
+import { ActivityIndicator, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import { AuthContext } from './context/context';
 
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { NavigationContainer } from '@react-navigation/native';
@@ -13,15 +17,56 @@ import Settings from './Funds/settings';
 const Drawer = createDrawerNavigator();
 
 export default function App() {
+  const [token, setToken] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  const authContent = useMemo(() => ({
+    signIn: () => {
+      setToken('a')
+    },
+    signOut: () => {
+      setToken('')
+    }
+  }),[])
+
+  useEffect(() => {
+    AsyncStorage.getItem('token').then((value) => {
+        if (value) {
+            setToken(value)
+        }
+    })
+},[])
+
+  useEffect(() => {
+    setTimeout(() => {
+      setIsLoading(false)
+    }, 800)
+  },[])
+
+  if (isLoading) {
+    return(
+      <SafeAreaView style={styles.container}>
+        <ActivityIndicator size='large'/>
+      </SafeAreaView>
+    )
+  }
+
   return (
+  <AuthContext.Provider value={authContent}>
     <NavigationContainer>
-    <Drawer.Navigator initialRouteName="Home">
-      <Drawer.Screen name="Costs" component={Costs} />
-      <Drawer.Screen name="Earnings" component={Earnings} />
-      <Drawer.Screen name="Login" component={Login} />
-      <Drawer.Screen name="Settings" component={Settings} />
-    </Drawer.Navigator>
-  </NavigationContainer>
+      <Drawer.Navigator>
+        {token !== null ? (
+          <>
+          <Drawer.Screen name="Costs" component={Costs} />
+          <Drawer.Screen name="Earnings" component={Earnings} />
+          <Drawer.Screen name="Settings" component={Settings} />
+         </>
+        ) : (
+         <Drawer.Screen name="Login" component={Login} />
+       )}
+      </Drawer.Navigator>
+    </NavigationContainer>
+  </AuthContext.Provider>
   );
 }
 

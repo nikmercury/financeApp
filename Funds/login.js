@@ -1,39 +1,32 @@
-import React, { useState } from "react";
-import { SafeAreaView, Text, View, Button, StyleSheet } from "react-native";
+import React, { useState, useEffect } from "react";
+import { SafeAreaView, Text, View, Button, StyleSheet, Alert } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { TextInput } from "react-native-gesture-handler";
 
-export default function Earnings() {
+import { AuthContext } from "../context/context";
+
+export default function Login() {
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
 
-    const storeToken = async (value) => {
-        try {
-          await AsyncStorage.setItem('token', value)
-        } catch (e) {
-          console.log('cant save token')
-        }
-      }
+    const { signIn } = React.useContext(AuthContext)
+
 
     async function clearToken() {
       AsyncStorage.removeItem('token')
-    }
-
-    function submitHandler() {
-      return true
     }
 
     return (
         <SafeAreaView style={styles.container}>
             <TextInput
                 defaultValue={username}
-                onChangeText={text => setUsername(text)}
+                onChangeText={setUsername}
                 placeholder={'Username'}
                 style={styles.input}
             />
              <TextInput
                 defaultValue={password}
-                onChangeText={text => setPassword(text)}
+                onChangeText={setPassword}
                 placeholder={'Password'}
                 style={styles.input}
                 secureTextEntry={true}
@@ -41,11 +34,12 @@ export default function Earnings() {
             <Button
               title={'Login'}
               style={styles.input}
-              onPress={submitHandler}
+              onPress={signIn}
             />
             <Button
               title={'Logout'}
               style={styles.input}
+              onPress={clearToken}
             />
 
         </SafeAreaView>
